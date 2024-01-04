@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link href="\bootstrap-5.3.0\dist\css\bootstrap.min.css" rel="stylesheet">
+    <!-- My CSS -->
+    <link rel="stylesheet" href="\css\UserInfo.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8"></script>
+    <title>AdminHub</title>
+</head>
+<body>
+
+<!-- CONTENT -->
+<section id="content">
+    <!-- NAVBAR -->
+    <nav>
+        <a style="margin-left: auto; width: 10%;" href="/">
+            <img style="width: 120%;" src="/img/logo.png">
+        </a>
+        <div style="margin-left: auto">
+            <a onmouseover="showUserInfo(this)" onmouseout="hideUserInfo(event)"  class="profile">
+                <img src="/img/user.png">
+            </a>
+            <div onmouseover="cancelHideEvent()" onmouseout="hideUserInfo(event)" id="userInfo" style="display: none;">
+                <p style="padding-bottom: 0; margin-bottom: 0" th:text="${user.name}"></p>
+                <p th:text="${user.email}"></p>
+                <a href="/logout" style="color: red" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main style="display: flex; justify-content: center;" id="Main_sect">
+        <div class="main_cont">
+            <a th:href="@{'/employee'}">
+                <span class="close-icon">&times;</span>
+            </a>
+            <div class="window-header">
+                <img style="width: 25%;" src="/img/people.png">
+                <h1 id="user_name"  th:text="${employee.name}"></h1>
+                <input type="hidden" id="errorMessage" th:if="${errorMessage}" th:value="${errorMessage}">
+            </div>
+            <div class="main_text_div">
+                <div style="margin-left: 30%;" class="user_email">
+                    <h5 id="task_description_h3">Email</h5>
+                    <p>[[${employee.email}]]</p>
+                </div>
+            </div>
+            <div id="btns" style="display:flex; justify-content: center; margin-top: 40px;">
+                <a href="/delEmpl" class="btn" style="background-color:red;">Удалить</a>
+            </div>
+        </div>
+    </main>
+    <!-- MAIN -->
+</section>
+<!-- CONTENT -->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="\js\InfoUser.js"></script>
+<script>
+    var errorMessage = document.getElementById("errorMessage");
+    if (errorMessage.value.trim() !== "") {
+        alert(errorMessage.value);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: Canban
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: asd1212
+    ports:
+      - "5431:5432"
+    volumes:
+      - C:\Docker_storage\postgres_data_kursach:/var/lib/postgresql/data
+    restart: always
+  backend:
+    build: .
+    container_name: Canban_backend
+    depends_on:
+      - db
+    ports:
+      - "8089:8081"
+    environment:
+        db-url: jdbc:postgresql://db:5432/Canban
+        db-user: postgres
+        db-password: asd1212
+    restart: no
+///

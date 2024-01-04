@@ -1,0 +1,118 @@
+<!DOCTYPE html >
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="\bootstrap-5.3.0\dist\css\bootstrap.min.css" rel="stylesheet">
+    <link href="\css\LoginRegStyle.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8"></script>
+</head>
+<body class="Regis_body">
+<article class="contain" id="app">
+    <div class="block">
+        <section class="block_item">
+            <h2 class="block_item_title">Есть аккаунт</h2>
+            <button class="form_btn"  >Войти</button>
+        </section>
+        <section class="block_item">
+            <h2 class="block_item_title">Нет аккаунта</h2>
+            <button class="anothPage_btn" style="width: 45%!important;" onclick="window.location.href = '/registration'">Зарегистрироваться</button>
+        </section>
+    </div>
+    <div class="form_box">
+        <form id="form"  th:action="@{/login}" th:method="POST" class="form form_auth">
+            <h2 class="form_title">Вход</h2>
+            <div>
+                <input minlength="6" id="email" type="email"   name="username" class="form_input" placeholder="email">
+                <div class="error2"></div>
+            </div>
+            <div>
+                <input  id="password" type="password"   name="password" class="form_input" placeholder="Пароль">
+                <div class="error2"></div>
+            </div>
+            <div>
+                <button type="submit" style="width: 35%!important;" class="form_btn">Войти</button>
+            </div>
+            <!--<p>
+                <a href="/Regis" class="form_link">Восстановить пароль</a>
+            </p>-->
+            <div class="bar error" th:if="${errorMessage}">[[${errorMessage}]]</div>
+        </form>
+        <div style="position: absolute;bottom: 2%;left: 50%;transform: translateX(-90%);">
+                <a style="margin-left: auto; width: 10%;" href="/">
+                    <img style="width: 70%;" src="/img/logo_black.png">
+                </a>
+        </div>
+    </div>
+
+</article>
+
+
+<script>
+    var app = new Vue({
+        el:'#app',
+        data: {
+            IsMoving:false
+        }
+        })
+</script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script>
+    const form = document.getElementById('form');
+const email = document.getElementById('email');
+const password = document.getElementById('password');
+
+form.addEventListener('submit', e => {
+    e.preventDefault(); // Отменяет отправку формы
+  if (validateInputs()) {
+    form.submit(); // Отправляем форму
+  }
+});
+
+const setError = (element, message) => {
+const p = element.parentElement;
+const errorDisplay = p.querySelector('.error2');
+
+errorDisplay.innerText = message;
+element.classList.add('error1');
+element.classList.remove('success')
+}
+
+const setSuccess = element => {
+const p = element.parentElement;
+const errorDisplay = p.querySelector('.error2');
+
+errorDisplay.innerText = '';
+element.classList.add('success');
+element.classList.remove('error1');
+};
+
+
+const validateInputs = () =>  {
+const emailValue = email.value.trim();
+const passwordValue = password.value.trim();
+
+
+if(emailValue === '') {
+setError(email, 'Поле не может быть пустым');
+return false;
+}  else {
+setSuccess(email);
+}
+
+if(passwordValue === '') {
+setError(password, 'Поле не может быть пустым');
+return false;
+}
+else {
+setSuccess(password);
+}
+
+return true;
+
+};
+</script>
+</body>
+</html>
+

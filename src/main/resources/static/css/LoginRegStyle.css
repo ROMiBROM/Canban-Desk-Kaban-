@@ -1,0 +1,210 @@
+
+
+
+/* Registration/Authorization Page*/ 
+
+/* Контейнер*/ 
+.contain{
+    width: 800px;
+    height: 500px;
+    position: relative;
+}
+.Regis_body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-image: url("/img/fon.jpg");
+        background-size: cover;
+        -webkit-backdrop-filter: blur(30px);
+        backdrop-filter: blur(30px);
+    font-size: 15px;
+}
+
+@font-face {
+     font-family:'Bauhas';
+     src: url('bauhas.ttf');
+ }
+
+h2{
+font-family:'Bauhas';
+}
+
+.block{
+    height: 100%;
+    background-color:rgba(255,255,255,0.2);
+    box-shadow: 0 5px 45px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+}
+
+.block_item{
+    text-align: center;
+    width: 50%;
+}
+
+.block_item_title{
+font-size: 1.8rem;
+margin-bottom: 10px;
+}
+
+.block_item_btn{
+    border: none;
+    background-color: white;
+    font-size: 15px;
+}
+
+.form_box{
+    transition: 0.4s ease-in-out;
+    height: 100%;
+    width: 50%;
+    background-color: white;
+    box-shadow: 0 5px 45px rgba(0,0,0,0.2);
+    position: absolute;
+    top:0;
+    left:0;
+    z-index: 5;
+    display: flex;
+  justify-content: center;
+    align-items: center;
+    &.moving{
+        left: 50%;
+    }
+    overflow: hidden;
+}
+
+.form_boxMoving{
+    transition: 0.4s ease-in-out;
+    height: 100%;
+    width: 50%;
+    background-color: white;
+    box-shadow: 0 5px 45px rgba(0,0,0,0.2);
+    position: absolute;
+    top:0;
+    z-index: 5;
+    display: flex;
+  justify-content: center;
+    align-items: center;
+        left: 50%;
+    overflow: hidden;
+}
+
+.form{
+    width: 100%;
+    padding: 50px;
+    position: absolute;
+    transition: 0.5s;
+}
+
+.form_auth{
+    left: 0;
+}
+
+
+.form_regis{
+    left: 0%;
+}
+
+
+.form_title{
+    font-size: 30px;
+}
+
+.form_input{
+    width: 100%;
+        height: 5%;
+        padding: 10px;
+        border: none;
+        box-shadow: 1px 0px 8px 3px rgb(154 66 175 / 36%);
+        font-size: inherit;
+        margin-bottom: 7px;
+}
+.form_btn{
+    border: none;
+    border-radius: 15px;
+    color:white;
+    padding: 10px 10px;
+    background-color: #820768;
+    width: 55%;
+    display: block;
+  margin: 0 auto;
+  text-align: center;
+}
+.form_link{
+    text-decoration: none;
+    color:rgb(130, 7, 48);
+    display: block;
+    text-align: center;
+}
+.anothPage_btn{
+    border: none;
+        border-radius: 15px;
+        color: black;
+        padding: 10px 10px;
+        background-color: #ebd3e6;
+        width: 25%;
+        display: block;
+        margin: 0 auto;
+        text-align: center;
+}
+.bar {
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.error {
+  color: #ba3939;
+  background: #ffe0e0;
+  border: 1px solid #a33a3a;
+  width: 100%;
+}
+
+.success{
+    border: none;
+}
+.error1{
+    border: 1px solid #ff3860;
+}
+
+.error2 {
+    color: #ff3860;
+    font-size: 12px;
+        height: 2%;
+        margin-bottom: 5px;
+        max-width: 80%;
+}
+
+
+@media (max-width:992px){
+    .contain{
+        max-width: 400px;
+        height: 650px;
+        padding: 0;
+        margin: 0 20px;
+    }
+
+    .block{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .block_item{
+        width: 100%;
+        padding: 30px 0;
+    }
+
+    .form_box{
+        width: 100%;
+        height: 500px;
+        box-shadow: none;
+        top:0;
+        &.moving{
+            top: 150px;
+            left: 0;
+        }
+    }
+}
+
+
+

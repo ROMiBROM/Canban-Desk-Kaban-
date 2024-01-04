@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link href="\bootstrap-5.3.0\dist\css\bootstrap.min.css" rel="stylesheet">
+    <!-- My CSS -->
+    <link rel="stylesheet" href="\css\TaskInfStyle.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8"></script>
+    <title>AdminHub</title>
+</head>
+<body>
+
+<!-- CONTENT -->
+<section id="content">
+    <!-- NAVBAR -->
+    <nav>
+        <a style="margin-left: auto; width: 10%;" href="/">
+            <img style="width: 120%;" src="/img/logo.png">
+        </a>
+        <div style="margin-left: auto">
+            <a onmouseover="showUserInfo(this)" onmouseout="hideUserInfo(event)"  class="profile">
+                <img src="/img/user.png">
+            </a>
+            <div onmouseover="cancelHideEvent()" onmouseout="hideUserInfo(event)" id="userInfo" style="display: none;">
+                <p style="padding-bottom: 0; margin-bottom: 0" th:text="${user.name}"></p>
+                <p th:text="${user.email}"></p>
+                <a href="/Editemployee">
+                    <span class="text">Info</span>
+                </a>
+                <a href="/logout" style="color: red" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main style="display: flex; justify-content: center;" id="Main_sect">
+        <div class="main_cont">
+            <a th:href="@{'/employee/project'+${projectID}}">
+            <span class="close-icon">&times;</span>
+            </a>
+            <div class="window-header">
+                <span class="window-header-icon bx bx-rectangle"></span>
+                <h1 id="task_title"  th:text="${task.title}"></h1>
+                <p class="u-inline-block">в колонке [[${task.column.name}]]</p>
+            </div>
+            <div class="main_text_div">
+                <div class="task_description">
+                    <h5 id="task_description_h3">Описание</h5>
+                    <p>[[${task.body}]]</p>
+                </div>
+                <div class="task_anoth_info">
+                    <div class="task_deadline">
+                        <h5 id="task_deadline_h3" >Дедлайн</h5>
+                        <p>[[${task.deadline}]]</p>
+                    </div>
+                    <div class="task_employee">
+                        <h5 id="task_employee_h3">Назначено</h5>
+                        <div  class="user">
+                            <img src="/img/people.png" alt="User">
+                            <div th:if="${employee}" class="user-info">
+                                <h6 style="margin-bottom: 0px!important">[[${employee.name}]]</h6>
+                                <p>[[${employee.email}]]</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task_priority">
+                        <h5 id="task_priority_h3" >Приоретет</h5>
+                        <div class="priority-label" th:class="${task.priority == 'Высокий'} ? 'priority-label priority-high' : (${task.priority == 'Средний'} ? 'priority-label priority-medium' : 'priority-label priority-low')" th:text="${task.priority}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="Comments_block">
+                <h3 id="Comments_h3" class="Comments_h3">Комментарии([[${comments.size()}]])</h3>
+                <div class="comment-div">
+                    <form class="comment-form" th:action="@{'/createComment'+'/task'+${task.id}+'/prj'+${projectID}}" th:method="POST">
+                        <textarea minlength="3" class="comment-input" name="body" type="text" placeholder="Напишите комментарий..." required></textarea>
+                        <button class="comment-submit">Отправить</button>
+                    </form>
+                </div>
+                <div class="Comments">
+                    <div class="comment" th:each="comment : ${comments}">
+                            <img src="/img/people.png" alt="User">
+                            <div class="info">
+                                <span style="font-weight: bold;">[[${comment.employee.name}]]([[${comment.employee.email}]])</span>
+                                <span style="margin-left: 5px" >[[${comment.dateFormatter}]]</span>
+                            </div>
+                            <div id="p_comment_div" class="comment-text">
+                                <p id="p_comment">[[${comment.body}]]</p>
+                            </div>
+                            <form th:action="@{'/editComment'+${comment.id}+'/task'+${task.id}+'/prj'+${projectID}}" th:method="POST" id="EditComment_form" style="display: none">
+                                <textarea minlength="3" id="input_editComment" name="body" type="text" placeholder="Измените комментарий..." class="comment-input_edit" required></textarea>
+                                <div>
+                                    <button id="btn_editComment" type="submit" class="comment-submit_edit">Изменить</button>
+                                    <button onclick="cancelEditComment()" id="btn_cancelEdit" class="comment-submit_edit" style="margin-left: 8px; background-color: #8d969f!important">Отмена</button>
+                                </div>
+                            </form>
+                            <div id="a_comment" th:if="${comment.employee.id.equals(employeeID)}" class="comment-delete">
+                                <a onclick="editComment()" id="a_editComment">
+                                    <span style="cursor: pointer">Изменить</span>
+                                </a>
+                                <a id="a_deleteComment" th:href="@{'/deleteComment'+${comment.id}+'/task'+${task.id}+'/prj'+${projectID}}">
+                                    <span style="margin-left: 10px; color: #f76060; cursor: pointer">Удалить</span>
+                                </a>
+
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- MAIN -->
+</section>
+<!-- CONTENT -->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="\js\EditComment.js"></script>
+<script src="\js\InfoUser.js"></script>
+</body>
+</html>

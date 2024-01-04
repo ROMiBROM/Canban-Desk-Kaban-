@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link href="\bootstrap-5.3.0\dist\css\bootstrap.min.css" rel="stylesheet">
+    <!-- My CSS -->
+    <link rel="stylesheet" href="\css\Main_admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8"></script>
+    <title>AdminDashboard</title>
+</head>
+<body>
+
+
+<!-- SIDEBAR class="active"-->
+<section id="sidebar">
+    <h1 style="text-align: center; color: black; margin-top: 65px; margin-bottom: 15px;">Вкладки</h1>
+    <ul style="margin-top: 0px" class="side-menu top">
+        <li>
+            <a th:href="'/admin/projects'">
+                <i class='bx bx-spreadsheet'></i>
+                <span class="text">Проекты</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="'/admin/employees'">
+                <i class='bx bxs-user-detail' ></i>
+                <span class="text">Работники</span>
+            </a>
+        </li>
+    </ul>
+</section>
+<!-- SIDEBAR -->
+
+
+
+<!-- CONTENT -->
+<section id="content">
+    <!-- NAVBAR -->
+    <nav>
+        <div style="margin-left: auto;width: 20%;display: flex;align-items: flex-end;">
+            <a  href="/">
+                <img style="width: 100%;" src="/img/logo_black.png">
+            </a>
+            <span style=" color: orange;"><i>Admin</i></span>
+        </div>
+        <div style="margin-left: auto">
+            <a onmouseover="showUserInfo(this)" onmouseout="hideUserInfo(event)"  class="profile">
+                <img src="/img/people.png">
+            </a>
+            <div onmouseover="cancelHideEvent()" onmouseout="hideUserInfo(event)" id="userInfo" style="display: none;">
+                <p style="padding-bottom: 0; margin-bottom: 0" th:text="${user.name}"></p>
+                <p th:text="${user.email}"></p>
+                <a href="/logout" style="color: red" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main id="app">
+        <div th:if="${projects}" id="columnLists" class="columnBox">
+                <button @click="showForm" class="form_btn">Создать проект</button>
+            <div th:each="project : ${projects}"  class="column m-9">
+                <div class="Task_title">
+                    <h3 th:text="${project.name}"></h3>
+                    <p th:text="${project.description}"></p>
+                </div>
+                <span class="role">Менеджер: [[${project.manager.email}]]</span>
+                <div class="actions">
+                <span class="role">Кол-во столбцов: [[${project.columns.size}]]</span>
+                <span class="role" th:each="column:${project.columns}" th:text="${column.name}"></span>
+                    <div class="action-icons">
+                        <a class="a_delete_prj"  th:href="@{'/admin/deleteProject'+${project.id}}">
+                            <i class='bx bxs-trash-alt' style='color:#b24d57;cursor: pointer' ></i>
+                        </a>
+                        <a class="a_edit_prj"  th:data-projectId="${project.id}" @click="showEditForm">
+                        <i class='bx bxs-edit-alt' style='color:#5d5daf;cursor: pointer' ></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div th:if="${empls}" id="EmplLists" class="columnBox">
+                <div th:each="empl:${empls}" draggable="true" class="column m-9">
+                    <div class="Task_title">
+                        <h3 th:text="${empl.name}"></h3>
+                        <p th:text="${empl.email}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="isFormVisible" class="overlay">
+                <div class="form_box">
+                    <form  th:action="@{/createProject}" th:method="POST" class="form">
+                        <span class="close-icon" @click="hideForm">&times;</span>
+                        <h2 class="form_title">Новый проект</h2>
+                        <p>
+                            <input minlength="3" type="text" name="name" class="form_input" placeholder="Название проекта" required>
+                        </p>
+                        <p>
+                            <textarea minlength="3"  name="description" class="form_input" placeholder="Описание" required>
+                            </textarea>
+                        </p>
+                        <p>
+                        <h3>Менеджер проекта</h3>
+                        <select name="manager" required>
+                            <option th:each="employee : ${employees}" th:value="${employee.email}" th:text="${employee.email}"></option>
+                        </select>
+                        </p>
+                        <p>
+                        <h3>Кол-во столбцов</h3>
+                        <select v-model="selectedNumber" @change="updateSelectedNumber" required>
+                            <option value=3>3</option>
+                            <option value=4>4</option>
+                            <option value=5>5</option>
+                        </select>
+                        </p>
+                        <p v-for="index in selectedNumber" :key="index">
+                            <input minlength="3" class="form_input_col" type="text" name="column" placeholder="Название столбца" required>
+                        </p>
+                        <p>
+                            <button type="submit" class="form_btn">Создать</button>
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+        <div v-if="isEditFormVisible" class="overlay">
+            <div class="form_box">
+                <form id="EditProjectForm"  th:action="@{/EditProject}" th:method="POST" class="form">
+                    <input type="hidden" name="EditprojectID">
+                    <span class="close-icon" @click="hideEditForm">&times;</span>
+                    <h2 class="form_title">Редактировать проект</h2>
+                    <p>
+                        <input minlength="3" type="text" name="Edit_name" class="form_input" placeholder="Название проекта" required>
+                    </p>
+                    <p>
+                            <textarea minlength="3"  name="Edit_description" class="form_input" placeholder="Описание" required>
+                            </textarea>
+                    </p>
+                    <p>
+                    <h3>Менеджер проекта</h3>
+                    <select name="Edit_manager" required>
+                        <option th:each="employee : ${employees}" th:value="${employee.email}" th:text="${employee.email}"></option>
+                    </select>
+                    </p>
+                    <p>
+                    <h3>Кол-во столбцов</h3>
+                    <select onchange="updateCountCols(event)" name="Edit_Countcolumns" id="Edit_Count" required>
+                        <option value=3>3</option>
+                        <option value=4>4</option>
+                        <option value=5>5</option>
+                    </select>
+                    </p>
+                    <div id="editColumnsInputs">
+                        <p>
+                            <input minlength="3" class="form_input_col" type="text" name="Edit_column" placeholder="Название столбца" required>
+                            <input type="hidden" name="Edit_column_id">
+                        </p>
+                    </div>
+                    <p>
+                        <button type="submit" class="form_btn">Сохранить</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+    <!-- MAIN -->
+</section>
+<!-- CONTENT -->
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script>
+    new Vue({
+  el: '#app',
+  data: {
+    isFormVisible: false,
+    isEditFormVisible: false,
+    selectedNumber: 3
+  },
+  methods: {
+    showForm() {
+      this.isFormVisible = true;
+    },
+    showEditForm() {
+      this.isEditFormVisible = true;
+    },
+    hideForm(){
+        this.isFormVisible = false;
+    },
+    hideEditForm(){
+        this.isEditFormVisible = false;
+    },
+    updateSelectedNumber() {
+    this.selectedNumber = parseInt(this.selectedNumber);
+  },
+  updateCountCols(newCountCols) {
+    this.selectedNumber = newCountCols;
+ }
+  }
+});
+</script>
+<script>
+    var timeout;
+
+function showUserInfo(element) {
+var userInfo = document.getElementById('userInfo');
+userInfo.style.display = 'block';
+userInfo.style.left = element.offsetLeft - 155 + 'px';
+userInfo.style.top = element.offsetTop + 4 + element.offsetHeight + 'px';
+}
+
+function hideUserInfo(event) {
+var userInfo = document.getElementById('userInfo');
+timeout = setTimeout(function() {
+userInfo.style.display = 'none';
+}, 500);
+}
+
+function cancelHideEvent() {
+clearTimeout(timeout);
+}
+</script>
+<script src="\js\SelectNumberCol.js"></script>
+<script src="\js\editProject.js"></script>
+</body>
+</html>

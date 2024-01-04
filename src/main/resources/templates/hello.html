@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link href="\bootstrap-5.3.0\dist\css\bootstrap.min.css" rel="stylesheet">
+    <!-- My CSS -->
+    <link rel="stylesheet" href="\css\Projects.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8"></script>
+    <title>AdminHub</title>
+</head>
+<body>
+
+
+<!-- SIDEBAR class="active"-->
+<section id="sidebar">
+    <h1 style="text-align: center; color: white; margin-top: 65px; margin-bottom: 15px;">Проекты</h1>
+    <ul class="side-menu top">
+        <li th:each="project : ${projects}">
+            <a th:href="'/employee/project' + ${project.id}">
+                <i class='bx bxs-dashboard' ></i>
+                <span class="text" th:text="${project.name}"> </span>
+            </a>
+        </li>
+    </ul>
+</section>
+<!-- SIDEBAR -->
+
+
+
+<!-- CONTENT -->
+<section id="content">
+    <!-- NAVBAR -->
+    <nav>
+        <a style="margin-left: auto; width: 10%;" href="/">
+        <img style="width: 130%;" src="/img/logo.png">
+        </a>
+        <div style="margin-left: auto">
+            <a onmouseover="showUserInfo(this)" onmouseout="hideUserInfo(event)"  class="profile">
+                <img src="/img/user.png">
+            </a>
+            <div onmouseover="cancelHideEvent()" onmouseout="hideUserInfo(event)" id="userInfo" style="display: none;">
+                <p style="padding-bottom: 0; margin-bottom: 0" th:text="${user.name}"></p>
+                <p th:text="${user.email}"></p>
+                <a href="/Editemployee" style="color:gray">
+                    <span class="text">Info</span>
+                </a>
+                <a href="/logout" style="color: red" class="logout">
+                    <i class='bx bxs-log-out-circle' ></i>
+                    <span class="text">Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main class="main_section" id="app">
+        <div style="display: flex">
+            <div style=" width: 60%;" th:if="${users}" class="user-list">
+                <form th:if="${manager}" class="form_invite" th:action="@{'/invite(project'+ ${projectID}+')'}" method="post">
+                <input class="form_invite_user" type="email" name="inputEmail_invite_user" placeholder="Добавить работника(email)">
+                <button class="btn_invite_user" type="submit">Добавить</button>
+                </form>
+                <h2>Участники</h2>
+                <input type="hidden" id="errorMessage" th:if="${errorMessage}" th:value="${errorMessage}"></input>
+                <div class="users">
+                    <div th:each="user:${users}" class="user">
+                        <div th:if="${manager && !user.id.equals(managerID)}" class="close_userDiv">
+                        <a  th:href="@{'/removeEmployee'+${user.id}+'/project'+${projectID}}" class="close-icon close_user">&times;</a>
+                        </div>
+                        <img src="/img/people.png" alt="User">
+                        <div class="user-info">
+                            <h3>[[${user.name}]]</h3>
+                            <p>[[${user.email}]]</p>
+                        </div>
+                        <span class="role" th:text="${managerID.equals(user.id)}?'MNG':'EMPL'"></span>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-left: 0px; width: 50%;" th:if="${manager}" class="user-list">
+                <h2>Все пользователи</h2>
+                <div style="max-height: 170px;" class="users">
+                    <div th:each="user:${Allemployee}" class="user">
+                        <img src="/img/people.png" alt="User">
+                        <div class="user-info">
+                            <h3>[[${user.name}]]</h3>
+                            <p>[[${user.email}]]</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${columns}" th:class="${columns.size() == 3} ? 'd-flex justify-content-around columnBox' : 'd-flex columnBox'" id="columnLists"  class="d-flex columnBox">
+            <div  th:each="column : ${columns}"  class="column m-9">
+                <div class="Task_title">
+                    <h3 th:text="${column.name}"></h3>
+                    <a th:href="@{'/employee/project' + ${projectID} + '/SortColumn' + ${column.id}}">
+                        <i class='bx bx-sort-down' onclick="sortTasks(event)" style="padding-top: 5px;color:black;font-size: 25px;cursor: pointer"></i>
+                    </a>
+                </div>
+                <button th:id="'btn-createTask-'+${column.id}" th:if="${manager}" type="button" th:data-column-id="${column.id}" onclick="ActivateValid()" @click="showForm" class="btn btn-secondary btncreateTask">Task +</button>
+                <div th:id="${column.id}" ondragover="allowDrop(event)" ondrop="drop(event)" class="task-list">
+                <div th:id="${task.id}" th:each="task : ${column.tasks}" draggable="true" ondragend="endDrag(event)" ondragstart="drag(event)" class="task-block">
+                    <div class="task-block-header">
+                        <div class="priority-label" th:class="${task.priority == 'Высокий'} ? 'priority-label priority-high' : (${task.priority == 'Средний'} ? 'priority-label priority-medium' : 'priority-label priority-low')" th:text="${task.priority}"></div>
+                        <div th:if="${manager}" class="action-icons">
+                            <a style="margin-right: 12px" class="a_edit_task"  @click="showEditForm" th:data-employeeId="${employeeID}"  th:data-projectId="${projectID}"  th:data-taskId="${task.id}" href="#">
+                                <i class='bx bxs-edit-alt' style='color:#5d5daf' ></i>
+                            </a>
+                            <a id="a_delete_task" th:href="@{'/employee/prj'+${projectID}+'/DeleteTask'+${task.id}}">
+                                <i class='bx bxs-trash-alt' style='color:#b24d57' ></i>
+                            </a>
+                        </div>
+                    </div>
+                    <a draggable="false" style="color:black" th:href="@{'/employee/project' + ${projectID} + '/task' + ${task.id}}">
+                    <div class="task-title" th:text="${task.title}"></div>
+                    </a>
+                    <div class="task-due-date" >Последний срок сдачи: [[${task.deadline}]]</div>
+                    <div style="display: flex; direction: row" th:if="${task.comments.size()>0}" class="task-comments">
+                        <i class='bx bx-comment' style='color:#848282'  ></i>
+                        <span style='color:#848282' th:text="${task.comments.size()}"></span>
+                    </div>
+                </div>
+                    </div>
+            </div>
+        </div>
+
+
+        <div v-if="isFormVisible" class="overlay">
+            <div class="form_box">
+                <form id="createForm"  th:action="@{'/CreateTask(project'+${projectID}+'column'+')'}" th:method="POST" class="form">
+                    <span class="close-icon" @click="hideForm">&times;</span>
+                    <input id="columnIDd" type="hidden" name="columnID" >
+                    <h2 class="form_title">Новая задача</h2>
+                    <div>
+                        <input minlength="3" id="createName" type="text" name="name_task" class="form_input" placeholder="Название задачи" required>
+                        <div class="error2"></div>
+                    </div>
+                    <div>
+                            <textarea minlength="3" id="createDescription"  name="description_task" class="form_input" placeholder="Описание" required>
+                            </textarea>
+                            <div class="error2"></div>
+                    </div>
+                    <div>
+                    <h4>Ответственный за задачу</h4>
+                    <select id="createEmployee"  name="busyEmployee" required>
+                        <option th:each="user : ${users}" th:value="${user.email}" th:text="${user.email}"></option>
+                    </select>
+                    <div class="error2"></div>
+                    </div>
+                    <div>
+                    <h4>Приоритет</h4>
+                    <select  id="createPriority" name="priority" required>
+                        <option value="Высокий">Высокий</option>
+                        <option value="Средний">Средний</option>
+                        <option value="Низкий">Низкий</option>
+                    </select>
+                    <div class="error2"></div>
+                    </div>
+                    <div>
+                    <h4>Дедлайн</h4>
+                        <input id="createDate" class="form_input_col" type="Date" name="Date_task" required>
+                        <div class="error2"></div>
+                    </div>
+                    <p>
+                        <button type="submit"  class="form_btn">Создать</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <div v-if="isEditFormVisible" class="overlay">
+            <div class="form_box">
+                <form id="editForm"  th:action="@{'/employee/prj'+${projectID}+'/EditTask'}" th:method="POST" class="form">
+                    <span class="close-icon" @click="hideEditForm">&times;</span>
+                    <input id="edit_columnID" type="hidden" name="EditcolumnID" >
+                    <input id="edit_taskID" type="hidden" name="EdittaskID" >
+                    <h2 class="form_title">Редактирование задачи</h2>
+                    <p>
+                        <input minlength="3" type="text" name="Editname_task" class="form_input" placeholder="Название задачи" required>
+                    </p>
+                    <p>
+                            <textarea minlength="3"  name="Editdescription_task" class="form_input" placeholder="Описание" required>
+                            </textarea>
+                    </p>
+                    <p>
+                    <h4>Ответственный за задачу</h4>
+                    <select name="EditbusyEmployee" required>
+                        <option th:each="user : ${users}" th:value="${user.email}" th:text="${user.email}"></option>
+                    </select>
+                    </p>
+                    <p>
+                    <h4>Приоритет</h4>
+                    <select  name="Editpriority" required>
+                        <option value="Высокий">Высокий</option>
+                        <option value="Средний">Средний</option>
+                        <option value="Низкий">Низкий</option>
+                    </select>
+                    </p>
+                    <p>
+                    <h4>Дедлайн</h4>
+                    <input class="form_input_col" type="Date" name="EditDate_task" required>
+                    </p>
+                    <p>
+                        <button type="submit"  class="form_btn">Сохранить</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+
+    </main>
+    <!-- MAIN -->
+</section>
+<!-- CONTENT -->
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script>
+    new Vue({
+  el: '#app',
+  data: {
+    isFormVisible: false,
+    isEditFormVisible: false
+  },
+  methods: {
+    showForm() {
+      this.isFormVisible = true;
+    },
+    showEditForm(){
+        this.isEditFormVisible=true;
+    },
+    hideForm(){
+        this.isFormVisible = false;
+    },
+    hideEditForm(){
+        this.isEditFormVisible = false;
+    }
+  }
+});
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('[id^="btn-createTask-"]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var columnId = this.getAttribute('data-column-id');
+            document.getElementById('columnIDd').value = columnId;
+             document.getElementById('columnIDd').innerText=columnId;
+        });
+    });
+});
+</script>
+<script>
+    var errorMessage = document.getElementById("errorMessage");
+    if (errorMessage.value.trim() !== "") {
+        alert(errorMessage.value);
+    }
+</script>
+<script src="\js\InfoUser.js"></script>
+<script src="\js\editTask.js"></script>
+<script src="\js\DragNDrop.js"></script>
+</body>
+</html>
